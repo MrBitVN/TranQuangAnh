@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MrBitVN - Random Thuộc Tính</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-image: url('background.jpg'); /* Thay bằng link hình nền */
+            background-size: cover;
+            background-position: center;
+            color: black; /* Chữ màu đen */
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            color: black; /* Chỉnh tiêu đề về màu đen */
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 22px;
+            color: black; /* Chỉnh tiêu đề phụ về màu đen */
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .attribute {
+            margin-top: 20px;
+        }
+        img {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MrBitVN - Random Thuộc Tính</h1>
+    <button onclick="randomizeAttribute()">Randomize</button>
+    <button onclick="resetCounter()">Reset Counter</button>
+    
+    <p>Số lần Random: <span id="counter">0</span></p>
+    <div class="attribute" id="result"></div>
+    
+    <h2>Test nhân phẩm Anime Vanguards =))))</h2>
+
+    <script>
+        const attributes = [
+            { name: "Range", chance: 26, img: "range1.webp" },
+            { name: "Swift", chance: 26, img: "swift.webp" },
+            { name: "Vigor", chance: 26, img: "vigor.webp" },
+            { name: "Scholar", chance: 10, img: "scholar.webp" },
+            { name: "Marksman", chance: 6.5, img: "marksman.webp" },
+            { name: "Fortune", chance: 2.5, img: "fortune.webp" },
+            { name: "Blitz", chance: 1.85, img: "blitz.webp" },
+            { name: "Solar", chance: 0.5, img: "solar.webp" },
+            { name: "Deadeye", chance: 0.375, img: "deadeye.webp" },
+            { name: "Ethereal", chance: 0.175, img: "ethereal.webp" },
+            { name: "Monarch", chance: 0.1, img: "monarch.webp" }
+        ];
+
+        let counter = 0;
+        let lastWasRare = false; // Biến kiểm tra lần trước có phải trait xịn không
+
+        function randomizeAttribute() {
+            counter++;
+            document.getElementById("counter").textContent = counter;
+
+            let totalWeight = attributes.reduce((sum, attr) => sum + attr.chance, 0);
+            let rand = Math.random() * totalWeight;
+            let cumulative = 0;
+            let selectedAttr = null;
+
+            for (let attr of attributes) {
+                cumulative += attr.chance;
+                if (rand <= cumulative) {
+                    selectedAttr = attr;
+                    break;
+                }
+            }
+
+            document.getElementById("result").innerHTML = `
+                <h2>${selectedAttr.name}</h2>
+                <img src="${selectedAttr.img}" alt="${selectedAttr.name}">
+                <p>Tỷ lệ: ${selectedAttr.chance}%</p>
+            `;
+
+            // Kiểm tra trait xịn (Solar, Deadeye, Ethereal, Monarch)
+            const rareTraits = ["Solar", "Deadeye", "Ethereal", "Monarch"];
+            if (lastWasRare) {
+                let confirmChoice = confirm("Bạn vừa roll được trait xịn trước đó! Có muốn tiếp tục không?");
+                if (!confirmChoice) {
+                    alert("Dừng random, chúc mừng bạn!");
+                    return;
+                }
+            }
+
+            lastWasRare = rareTraits.includes(selectedAttr.name);
+        }
+
+        function resetCounter() {
+            counter = 0;
+            lastWasRare = false;
+            document.getElementById("counter").textContent = counter;
+            document.getElementById("result").innerHTML = "";
+        }
+    </script>
+</body>
+</html>
