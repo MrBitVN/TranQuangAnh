@@ -12,17 +12,15 @@
             background-image: url('background.jpg'); /* Thay bằng link hình nền */
             background-size: cover;
             background-position: center;
-            color: black; /* Chữ màu đen */
+            color: black;
         }
         h1 {
             font-size: 36px;
             font-weight: bold;
-            color: black; /* Chỉnh tiêu đề về màu đen */
             margin-bottom: 10px;
         }
         h2 {
             font-size: 22px;
-            color: black; /* Chỉnh tiêu đề phụ về màu đen */
             font-weight: bold;
             margin-top: 10px;
         }
@@ -39,17 +37,44 @@
             width: 100px;
             height: 100px;
         }
+        table {
+            width: 60%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: lightgray;
+        }
+        .trait-img {
+            width: 50px;
+            height: 50px;
+        }
     </style>
 </head>
 <body>
     <h1>MrBitVN - Random Thuộc Tính</h1>
     <button onclick="randomizeAttribute()">Randomize</button>
-    <button onclick="resetCounter()">Reset Counter</button>
+    <button onclick="resetCounter()">Reset</button>
     
     <p>Số lần Random: <span id="counter">0</span></p>
     <div class="attribute" id="result"></div>
-    
-    <h2>Test nhân phẩm Anime Vanguards =))))</h2>
+
+    <h2>Bảng Thống Kê</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Thuộc tính</th>
+                <th>Số lần xuất hiện</th>
+            </tr>
+        </thead>
+        <tbody id="statsTable"></tbody>
+    </table>
 
     <script>
         const attributes = [
@@ -67,9 +92,22 @@
         ];
 
         let counter = 0;
-        let lastWasRare = false; // Biến kiểm tra lần trước có phải trait xịn không
+        let lastAttribute = null;
+        let confirmNextRoll = false;
+        let stats = {};
+
+        // Khởi tạo bảng thống kê ban đầu
+        attributes.forEach(attr => {
+            stats[attr.name] = 0;
+        });
 
         function randomizeAttribute() {
+            if (confirmNextRoll) {
+                let confirmChoice = confirm("Bạn vừa roll được trait xịn! Có muốn tiếp tục random không?");
+                if (!confirmChoice) return;
+                confirmNextRoll = false;
+            }
+
             counter++;
             document.getElementById("counter").textContent = counter;
 
@@ -86,31 +124,54 @@
                 }
             }
 
+            // Cập nhật số lần xuất hiện của trait
+            stats[selectedAttr.name]++;
+            updateStatsTable();
+
             document.getElementById("result").innerHTML = `
                 <h2>${selectedAttr.name}</h2>
                 <img src="${selectedAttr.img}" alt="${selectedAttr.name}">
                 <p>Tỷ lệ: ${selectedAttr.chance}%</p>
             `;
 
-            // Kiểm tra trait xịn (Solar, Deadeye, Ethereal, Monarch)
+            // Kiểm tra trait hiếm
             const rareTraits = ["Solar", "Deadeye", "Ethereal", "Monarch"];
-            if (lastWasRare) {
-                let confirmChoice = confirm("Bạn vừa roll được trait xịn trước đó! Có muốn tiếp tục không?");
-                if (!confirmChoice) {
-                    alert("Dừng random, chúc mừng bạn!");
-                    return;
-                }
+            if (rareTraits.includes(selectedAttr.name)) {
+                lastAttribute = selectedAttr;
+                confirmNextRoll = true;
             }
-
-            lastWasRare = rareTraits.includes(selectedAttr.name);
         }
 
         function resetCounter() {
             counter = 0;
-            lastWasRare = false;
+            lastAttribute = null;
+            confirmNextRoll = false;
             document.getElementById("counter").textContent = counter;
             document.getElementById("result").innerHTML = "";
+
+            // Reset thống kê
+            attributes.forEach(attr => {
+                stats[attr.name] = 0;
+            });
+            updateStatsTable();
         }
+
+        function updateStatsTable() {
+            let tableBody = document.getElementById("statsTable");
+            tableBody.innerHTML = "";
+
+            for (let attr of attributes) {
+                let row = `<tr>
+                    <td><img class="trait-img" src="${attr.img}" alt="${attr.name}"></td>
+                    <td>${attr.name}</td>
+                    <td>${stats[attr.name]}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            }
+        }
+
+        // Hiển thị bảng thống kê khi trang tải lần đầu
+        updateStatsTable();
     </script>
 </body>
 </html>
